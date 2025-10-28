@@ -1,0 +1,299 @@
+import java.util.Arrays;
+
+public class algoritmosdeordenacao {
+
+    static class no {
+        int valor;
+        no proximo;
+
+        no(int valor) {
+            this.valor = valor;
+            this.proximo = null;
+        }
+    }
+
+    static class listaligada {
+        no cabeca;
+        int tamanho;
+
+        listaligada() {
+            this.cabeca = null;
+            this.tamanho = 0;
+        }
+
+        public void adicionar(int valor, resultado res) {
+            res.iteracoes++;
+            no novoNo = new no(valor);
+            this.tamanho++;
+
+            if (this.cabeca == null) {
+                this.cabeca = novoNo;
+                return;
+            }
+
+            no ultimo = this.cabeca;
+            while (ultimo.proximo != null) {
+                res.iteracoes++;
+                ultimo = ultimo.proximo;
+            }
+            ultimo.proximo = novoNo;
+        }
+
+        public int[] paraarray(resultado res) {
+            int[] arr = new int[this.tamanho];
+            no atual = this.cabeca;
+            int i = 0;
+            while (atual != null) {
+                res.iteracoes++;
+                arr[i] = atual.valor;
+                i++;
+                atual = atual.proximo;
+            }
+            return arr;
+        }
+    }
+
+    static class resultado {
+        long trocas = 0;
+        long iteracoes = 0;
+        String nome;
+
+        resultado(String nome) {
+            this.nome = nome;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("| %-15s | %-12d | %-12d |", nome, trocas, iteracoes);
+        }
+    }
+
+    public static resultado bubblesort(int[] arr) {
+        resultado res = new resultado("bubble sort");
+        int n = arr.length;
+        boolean trocou;
+
+        for (int i = 0; i < n - 1; i++) {
+            trocou = false;
+            res.iteracoes++;
+            for (int j = 0; j < n - 1 - i; j++) {
+                res.iteracoes++;
+                if (arr[j] > arr[j + 1]) {
+                    int temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                    res.trocas++;
+                    trocou = true;
+                }
+            }
+            if (!trocou) {
+                break;
+            }
+        }
+        return res;
+    }
+
+    public static resultado selectionsort(int[] arr) {
+        resultado res = new resultado("selection sort");
+        int n = arr.length;
+
+        for (int i = 0; i < n - 1; i++) {
+            res.iteracoes++;
+            int minidx = i;
+            for (int j = i + 1; j < n; j++) {
+                res.iteracoes++;
+                if (arr[j] < arr[minidx]) {
+                    minidx = j;
+                }
+            }
+
+            if (minidx != i) {
+                int temp = arr[minidx];
+                arr[minidx] = arr[i];
+                arr[i] = temp;
+                res.trocas++;
+            }
+        }
+        return res;
+    }
+
+    public static resultado cocktailsort(int[] arr) {
+        resultado res = new resultado("cocktail sort");
+        boolean trocou = true;
+        int inicio = 0;
+        int fim = arr.length - 1;
+
+        while (trocou) {
+            res.iteracoes++;
+            trocou = false;
+
+            for (int i = inicio; i < fim; i++) {
+                res.iteracoes++;
+                if (arr[i] > arr[i + 1]) {
+                    int temp = arr[i];
+                    arr[i] = arr[i + 1];
+                    arr[i + 1] = temp;
+                    res.trocas++;
+                    trocou = true;
+                }
+            }
+
+            if (!trocou) {
+                break;
+            }
+            trocou = false;
+            fim--;
+
+            for (int i = fim - 1; i >= inicio; i--) {
+                res.iteracoes++;
+                if (arr[i] > arr[i + 1]) {
+                    int temp = arr[i];
+                    arr[i] = arr[i + 1];
+                    arr[i + 1] = temp;
+                    res.trocas++;
+                    trocou = true;
+                }
+            }
+            inicio++;
+        }
+        return res;
+    }
+
+    public static resultado gnomesort(int[] arr) {
+        resultado res = new resultado("gnome sort");
+        int index = 0;
+        int n = arr.length;
+
+        while (index < n) {
+            res.iteracoes++;
+            if (index == 0) {
+                index++;
+            }
+            if (arr[index] >= arr[index - 1]) {
+                index++;
+            } else {
+                int temp = arr[index];
+                arr[index] = arr[index - 1];
+                arr[index - 1] = temp;
+                res.trocas++;
+                index--;
+            }
+        }
+        return res;
+    }
+
+    private static int getnextgap(int gap) {
+        gap = (gap * 10) / 13;
+        if (gap < 1) {
+            return 1;
+        }
+        return gap;
+    }
+
+    public static resultado combsort(int[] arr) {
+        resultado res = new resultado("comb sort");
+        int n = arr.length;
+        int gap = n;
+        boolean trocou = true;
+
+        while (gap != 1 || trocou) {
+            res.iteracoes++;
+
+            gap = getnextgap(gap);
+            trocou = false;
+
+            for (int i = 0; i < n - gap; i++) {
+                res.iteracoes++;
+                if (arr[i] > arr[i + gap]) {
+                    int temp = arr[i];
+                    arr[i] = arr[i + gap];
+                    arr[i + gap] = temp;
+                    res.trocas++;
+                    trocou = true;
+                }
+            }
+        }
+        return res;
+    }
+
+    public static resultado bucketsort(int[] arr) {
+        resultado res = new resultado("bucket sort");
+        int n = arr.length;
+
+        int maxvalor = arr[0];
+        for (int i = 1; i < n; i++) {
+            res.iteracoes++;
+            if (arr[i] > maxvalor) {
+                maxvalor = arr[i];
+            }
+        }
+
+        int numerobaldes = 10;
+        listaligada[] baldes = new listaligada[numerobaldes];
+        for (int i = 0; i < numerobaldes; i++) {
+            res.iteracoes++;
+            baldes[i] = new listaligada();
+        }
+
+        for (int i = 0; i < n; i++) {
+            res.iteracoes++;
+            int valor = arr[i];
+            int indicebalde = (numerobaldes * valor) / (maxvalor + 1);
+            baldes[indicebalde].adicionar(valor, res);
+        }
+
+        int index = 0;
+        for (int i = 0; i < numerobaldes; i++) {
+            res.iteracoes++;
+
+            if (baldes[i].tamanho > 0) {
+                int[] baldecomoarray = baldes[i].paraarray(res);
+
+                resultado resbalde = selectionsort(baldecomoarray);
+                res.trocas += resbalde.trocas;
+                res.iteracoes += resbalde.iteracoes;
+
+                for (int j = 0; j < baldecomoarray.length; j++) {
+                    res.iteracoes++;
+                    arr[index] = baldecomoarray[j];
+                    index++;
+                }
+            }
+        }
+
+        return res;
+    }
+
+    public static void main(String[] args) {
+        int[] vetor1 = {12, 18, 9, 25, 17, 31, 22, 27, 16, 13, 19, 23, 20, 30, 14, 11, 15, 24, 26, 28};
+        int[] vetor2 = {5, 7, 9, 10, 12, 14, 15, 17, 19, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32};
+        int[] vetor3 = {99, 85, 73, 60, 50, 40, 35, 30, 25, 20, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6};
+
+        int[][] vetores = {vetor1, vetor2, vetor3};
+        String[] nomesvetores = {"vetor 1 (o aleatorio)", "vetor 2 (o ordenado)", "vetor 3 (o reverso)"};
+
+        for (int i = 0; i < vetores.length; i++) {
+            System.out.println("\n--- " + nomesvetores[i] + " ---");
+            System.out.println("| algoritmo       | trocas       | iteracoes    |");
+
+            resultado resbubble = bubblesort(vetores[i].clone());
+            System.out.println(resbubble);
+
+            resultado resselection = selectionsort(vetores[i].clone());
+            System.out.println(resselection);
+
+            resultado rescocktail = cocktailsort(vetores[i].clone());
+            System.out.println(rescocktail);
+
+            resultado resgnome = gnomesort(vetores[i].clone());
+            System.out.println(resgnome);
+
+            resultado rescomb = combsort(vetores[i].clone());
+            System.out.println(rescomb);
+
+            resultado resbucket = bucketsort(vetores[i].clone());
+            System.out.println(resbucket);
+
+        }
+    }
+}
